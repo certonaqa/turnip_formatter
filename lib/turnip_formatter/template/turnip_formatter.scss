@@ -207,6 +207,7 @@ body {
 div#report {
     @include content_centering;
     color: black;
+    height: 375px;
 }
 
 footer {
