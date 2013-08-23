@@ -36,26 +36,67 @@ $gray-background: #DDDDDD;
     }
 }
 
+
 @mixin content_centering {
     margin: 0 auto;
     padding: 2em;
 }
 
 body {
-    background-color: #ffffff;
+    background-color: #f6f6f6;
+    font-family: Verdana,Arial,sans-serif;
 }
 
 div#report {
     @include content_centering;
-    background: black;
-    color: $green-front;
+    color: black;
+    width: 100%;
 }
 
 footer {
     @include content_centering;
-    background: black;
-    color: $green-front;
+    color: black;
     text-align: right;
+}
+
+div#overall {
+  width: 50%;
+  height: 150px;
+}
+
+a:visited {
+ color: $gray-front;
+}
+
+a:hover {
+  color: $gray-front;
+}
+
+#overall fieldset {
+  border: 0;
+}
+
+#overall legend {
+  font-weight: bold;
+  padding-bottom: 15px;
+}
+
+.configuration {
+  float: left;
+  width: 25%;
+}
+
+.results-summary {
+  float: right;
+  width: 40%;
+}
+
+.result {
+  padding-left: 20px;
+}
+
+.checkbox {
+  padding-left: 20px;
 }
 
 div#main {

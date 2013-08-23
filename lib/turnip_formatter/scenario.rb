@@ -73,6 +73,10 @@ module TurnipFormatter
     def example
       @example
     end
+    #
+    #def sites
+    #  self.tags.include?()
+    #end
 
     private
 

@@ -19,6 +19,7 @@ module RSpec
           @failed_scenarios  = []
           @pending_scenarios = []
           @scenarios = []
+          @run_at = []
         end
 
         def dump_summary(duration, example_count, failure_count, pending_count)
@@ -48,6 +49,13 @@ module RSpec
           scenario = ::TurnipFormatter::Scenario::Failure.new(example)
           @failed_scenarios << scenario
           @scenarios << scenario
+        end
+
+
+        def sites_tested
+          @scenarios.tags.map do |tag|
+            { name: tag }
+          end
         end
       end
     end
