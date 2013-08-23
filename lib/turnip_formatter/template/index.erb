@@ -13,13 +13,13 @@
   </head>
   <body>
     <div id="report">
-      <h1>Test Results for <%= ENV['TAZA_ENV'] %> run at <%= ENV['RUN_AT'] %></h1>
+      <h1>Test Results for <%= ENV['TAZA_ENV'] %> tested on <%= ENV['RUN_AT'] %></h1>
       <div id="overall">
         <section class="configuration">
           <fieldset>
             <legend>Sites Tested</legend>
             <ul>
-              <li>Insight <%= ENV['VERSION'] %></li>
+              <li>Insight (<%= ENV['VERSION'] %>)</li>
             </ul>
           </fieldset>
         </section>
