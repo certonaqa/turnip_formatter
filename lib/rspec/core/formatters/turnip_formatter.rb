@@ -50,13 +50,6 @@ module RSpec
           @failed_scenarios << scenario
           @scenarios << scenario
         end
-
-
-        def sites_tested
-          @scenarios.tags.map do |tag|
-            { name: tag }
-          end
-        end
       end
     end
   end
