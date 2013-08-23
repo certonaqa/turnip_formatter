@@ -19,7 +19,6 @@ module RSpec
           @failed_scenarios  = []
           @pending_scenarios = []
           @scenarios = []
-          @run_at = []
         end
 
         def dump_summary(duration, example_count, failure_count, pending_count)
