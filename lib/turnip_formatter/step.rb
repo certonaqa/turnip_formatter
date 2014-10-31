@@ -1,45 +1,23 @@
-# -*- coding: utf-8 -*-
+require 'forwardable'
 
 module TurnipFormatter
   class Step
-    attr_reader :name, :docs, :example
+    extend Forwardable
 
-    class << self
-      def templates
-        @templates ||= {}
-      end
+    attr_reader :name, :example, :extra_args
+    attr_accessor :status
 
-      def add_template(status, klass = nil, &block)
-        templates[status] ||= {}
-        templates[status][klass] = { klass: klass, block: block }
-      end
-
-      def remove_template(status, klass)
-        templates[status].delete(klass)
-        templates.delete(status.to_sym) if templates[status.to_sym].empty?
-      end
-
-      def status
-        ''
-      end
-    end
+    def_delegators :@raw, :extra_args, :line, :keyword, :description
 
     #
-    # @param  [RSpec::Core::Example]  example
-    # @param  [Hash]  description
+    # @param  [RSpec::Core::Example]   example
+    # @param  [Turnip::Builder::Step]  raw
     #
-    def initialize(example, description)
+    def initialize(example, raw)
       @example = example
-      @name = description[:keyword] + description[:name]
-      @docs = { extra_args: { klass: nil, value: description[:extra_args] } }
-    end
-
-    def attention?
-      !status.empty?
-    end
-
-    def status
-      self.class.status
+      @raw     = raw
+      @name    = raw.keyword.strip + ' ' + raw.description
+      @status  = :passed
     end
   end
 end

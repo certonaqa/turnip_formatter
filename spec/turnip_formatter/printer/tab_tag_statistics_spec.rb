@@ -3,11 +3,8 @@ require 'turnip_formatter/printer/tab_tag_statistics'
 
 module TurnipFormatter::Printer
   describe TabTagStatistics do
-    include_context 'turnip_formatter scenario setup'
-    include_context 'turnip_formatter standard scenario metadata'
-
     let :base_scenario do
-      TurnipFormatter::Scenario::Pass.new(example)
+      TurnipFormatter::Scenario::Pass.new(passed_example)
     end
 
     let :scenarios do
@@ -22,26 +19,30 @@ module TurnipFormatter::Printer
 
       # Failed scenario have tags @hoge and @fuga
       scenario = base_scenario.dup
-      scenario.stub(:tags).and_return(['foo', 'bar'])
-      scenario.stub(:status).and_return('failed')
+      allow(scenario).to receive(:tags).and_return(['foo', 'bar'])
+      allow(scenario).to receive(:validation).and_return(true)
+      allow(scenario).to receive(:status).and_return('failed')
       scenarios << scenario
 
       # Passed scenario no have tags
       scenario = base_scenario.dup
-      scenario.stub(:tags).and_return([])
-      scenario.stub(:status).and_return('passed')
+      allow(scenario).to receive(:tags).and_return([])
+      allow(scenario).to receive(:validation).and_return(true)
+      allow(scenario).to receive(:status).and_return('passed')
       scenarios << scenario
 
       # Passed scenario have tags @hoge
       scenario = base_scenario.dup
-      scenario.stub(:tags).and_return(['hoge'])
-      scenario.stub(:status).and_return('passed')
+      allow(scenario).to receive(:tags).and_return(['hoge'])
+      allow(scenario).to receive(:validation).and_return(true)
+      allow(scenario).to receive(:status).and_return('passed')
       scenarios << scenario
 
       # Pending scenario have tags @fuga and @hago
       scenario = base_scenario.dup
-      scenario.stub(:tags).and_return(['bar', 'hoge'])
-      scenario.stub(:status).and_return('pending')
+      allow(scenario).to receive(:tags).and_return(['bar', 'hoge'])
+      allow(scenario).to receive(:validation).and_return(true)
+      allow(scenario).to receive(:status).and_return('pending')
       scenarios << scenario
     end
 

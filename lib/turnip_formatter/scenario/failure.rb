@@ -1,35 +1,43 @@
-# -*- coding: utf-8 -*-
-
-require 'turnip_formatter/scenario'
-require 'turnip_formatter/step/failure'
+require 'turnip_formatter/scenario/base'
 
 module TurnipFormatter
   module Scenario
-    class NotFailedScenarioError < ::StandardError; end
-    class NoExistFailedStepInformationError < ::StandardError; end
-
-    class Failure
-      include TurnipFormatter::Scenario
-
+    class Failure < Base
       def steps
         steps = super
-        steps[offending_line].extend TurnipFormatter::Step::Failure
+        return steps unless failed_line_number
+
+        steps.each do |step|
+          case
+          when step.line == failed_line_number
+            step.status = :failed
+          when step.line > failed_line_number
+            step.status = :unexecuted
+          end
+        end
+
         steps
       end
 
+      protected
+
       def validation
-        raise NotFailedScenarioError if status != 'failed'
-        offending_line
+        @errors << 'has no failed step information' unless failed_line_number
         super
       end
 
       private
 
-      def offending_line
-        unless example.exception.backtrace.last =~ /:in step:(?<stepno>\d+) `/
-          raise NoExistFailedStepInformationError
+      def failed_line_number
+        return @failed_line_number if @failed_line_number
+        return unless example.exception
+
+        filepath = File.basename(feature_file_path)
+        line = example.exception.backtrace.find do |backtrace|
+          backtrace.match(/#{filepath}:(\d+)/)
         end
-        $~[:stepno].to_i
+
+        @failed_line_number = Regexp.last_match[1].to_i if line
       end
     end
   end

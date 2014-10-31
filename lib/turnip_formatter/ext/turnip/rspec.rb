@@ -4,74 +4,32 @@ require 'turnip/rspec'
 
 module Turnip
   module RSpec
-    module Execute
-      def run_step(feature_file, step, index)
-        begin
-          step(step)
-        rescue Turnip::Pending
-          example.metadata[:line_number] = step.line
-          pending("No such step(#{index}): '#{step}'")
-        rescue StandardError => e
-          example.metadata[:line_number] = step.line
-          e.backtrace.push "#{feature_file}:#{step.line}:in step:#{index} `#{step.description}'"
-          raise e
-        end
-      end
-
-      def push_scenario_metadata(scenario)
-        steps = scenario.steps
-        example.metadata[:turnip_formatter].tap do |turnip|
-          steps.each do |step|
-            turnip[:steps] << {
-              name: step.description,
-              extra_args: step.extra_args,
-              keyword: step.keyword
-            }
-          end
-          turnip[:tags] += scenario.tags if scenario.respond_to?(:tags)
-        end
-      end
-    end
-
     class << self
+      alias_method :original_run, :run
+
       def run(feature_file)
-        Turnip::Builder.build(feature_file).features.each do |feature|
-          describe feature.name, feature.metadata_hash do
-            let(:backgrounds) do
-              feature.backgrounds
-            end
+        features = original_run(feature_file)
+        example_groups = ::RSpec.world.example_groups[-features.length..-1]
 
-            let(:background_steps) do
-              backgrounds.map(&:steps).flatten
-            end
+        features.zip(example_groups).each do |feature, example_group|
+          update_metadata(feature, example_group)
+        end
+      end
 
-            before do
-              example.metadata[:file_path] = feature_file
-              example.metadata[:turnip_formatter] = { steps: [], tags: feature.tags }
+      #
+      # @param  [Turnip::Builder::Feature]   feature
+      # @param  [RSpec::Core::ExampleGroup]  example_group
+      #
+      def update_metadata(feature, example_group)
+        background_steps = feature.backgrounds.map(&:steps).flatten
+        examples = example_group.children
 
-              backgrounds.each do |background|
-                push_scenario_metadata(background)
-              end
+        feature.scenarios.zip(examples).each do |scenario, parent_example|
+          example = parent_example.examples.first
+          steps   = background_steps + scenario.steps
+          tags    = (feature.tags + scenario.tags).uniq
 
-              background_steps.each.with_index do |step, index|
-                run_step(feature_file, step, index)
-              end
-            end
-
-            feature.scenarios.each do |scenario|
-              describe scenario.name, scenario.metadata_hash do
-                before do
-                  push_scenario_metadata(scenario)
-                end
-
-                it scenario.steps.map(&:description).join(' -> ') do
-                  scenario.steps.each.with_index(background_steps.size) do |step, index|
-                    run_step(feature_file, step, index)
-                  end
-                end
-              end
-            end
-          end
+          example.metadata[:turnip_formatter] = { steps: steps, tags: tags }
         end
       end
     end

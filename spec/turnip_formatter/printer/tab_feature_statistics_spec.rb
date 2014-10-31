@@ -3,11 +3,8 @@ require 'turnip_formatter/printer/tab_feature_statistics'
 
 module TurnipFormatter::Printer
   describe TabFeatureStatistics do
-    include_context 'turnip_formatter scenario setup'
-    include_context 'turnip_formatter standard scenario metadata'
-
     let :base_scenario do
-      TurnipFormatter::Scenario::Pass.new(example)
+      TurnipFormatter::Scenario::Pass.new(passed_example)
     end
 
     let :statistics do
@@ -19,7 +16,7 @@ module TurnipFormatter::Printer
         # Feature: Hago (passed:2 failed:0, pending:0)
         ['passed', 'passed'].map do |status|
           scenario = base_scenario.dup
-          scenario.stub(:status).and_return(status)
+          allow(scenario).to receive(:status).and_return(status)
           scenario
         end
       end
@@ -41,7 +38,7 @@ module TurnipFormatter::Printer
         # Feature: Hoge (passed:1 failed:2, pending:0)
         ['passed', 'failed', 'failed'].map do |status|
           scenario = base_scenario.dup
-          scenario.stub(:status).and_return(status)
+          allow(scenario).to receive(:status).and_return(status)
           scenario
         end
       end
@@ -63,7 +60,7 @@ module TurnipFormatter::Printer
         # Feature: Fuga (passed:1 failed:0, pending:1)
         ['passed', 'pending'].map do |status|
           scenario = base_scenario.dup
-          scenario.stub(:status).and_return(status)
+          allow(scenario).to receive(:status).and_return(status)
           scenario
         end
       end

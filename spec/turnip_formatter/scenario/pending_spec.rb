@@ -1,51 +1,51 @@
 require 'spec_helper'
 
-module TurnipFormatter::Scenario
-  describe Failure do
-    include_context 'turnip_formatter standard scenario metadata'
-    include_context 'turnip_formatter pending scenario setup'
+describe TurnipFormatter::Scenario::Pending do
+  let(:example) { pending_example }
+  let(:scenario) { described_class.new(example) }
 
-    let(:scenario) { ::TurnipFormatter::Scenario::Pending.new(pending_example) }
-
-    context 'Turnip example' do
-      let(:pending_example) do
-        example.execution_result[:pending_message] = 'No such step(0): '
-        example
-      end
-
-      describe '#validation' do
-        it 'should not raise exception' do
-          expect { scenario.validation }.not_to raise_error
-        end
-      end
+  describe '#steps' do
+    let(:example) do
+      example = pending_example
+      example.metadata[:turnip_formatter] = {
+        steps: [
+          Turnip::Builder::Step.new('Step 1', [],  1, 'When'),
+          Turnip::Builder::Step.new('Step 2', [],  3, 'When'),
+          Turnip::Builder::Step.new('Step 3', [], 10, 'When'), # pending line
+          Turnip::Builder::Step.new('Step 4', [], 11, 'When'),
+          Turnip::Builder::Step.new('Step 5', [], 12, 'When')
+        ],
+        tags: []
+      }
+      example
     end
 
-    context 'Not Turnip example' do
-      let(:pending_example) do
-        example
+    it 'should return steps that has status' do
+      expect = [:passed, :passed, :pending, :unexecuted, :unexecuted]
+      actual = scenario.steps.map(&:status)
+      expect(actual).to eq expect
+    end
+  end
+
+  describe '#valid?' do
+    subject { scenario.valid? }
+
+    context 'called by turnip example' do
+      it { should be true }
+    end
+
+    context 'called by not turnip example' do
+      let(:example) do
+        pending_example.tap { |e| e.metadata[:line_number] = nil }
       end
 
-      context 'Not pending example' do
-        include_context 'turnip_formatter scenario setup'
+      it { should be false }
+    end
+  end
 
-        describe '#validation' do
-          it 'should raise exception' do
-            expect {
-              scenario.validation
-            }.to raise_error NotPendingScenarioError
-          end
-        end        
-      end
-
-      context 'Not exist pending step information' do
-        describe '#validation' do
-          it 'should raise exception' do
-            expect {
-              scenario.validation
-            }.to raise_error NoExistPendingStepInformationError
-          end
-        end        
-      end
+  describe '#status' do
+    it 'return scenario status' do
+      expect(scenario.status).to eq 'pending'
     end
   end
 end

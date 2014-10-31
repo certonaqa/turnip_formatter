@@ -1,39 +1,40 @@
-# -*- coding: utf-8 -*-
-
-require 'turnip_formatter/scenario'
-require 'turnip_formatter/step/pending'
+require 'turnip_formatter/scenario/base'
 
 module TurnipFormatter
   module Scenario
-    class NotPendingScenarioError < ::StandardError; end
-    class NoExistPendingStepInformationError < ::StandardError; end
-
-    class Pending
-      include TurnipFormatter::Scenario
-
+    class Pending < Base
       def steps
         steps = super
-        steps[offending_line].extend TurnipFormatter::Step::Pending
+        return steps unless pending_line_number
+
+        steps.each do |step|
+          case
+          when step.line == pending_line_number
+            step.status = :pending
+          when step.line > pending_line_number
+            step.status = :unexecuted
+          end
+        end
+
         steps
       end
 
+      protected
+
       def validation
-        raise NotPendingScenarioError if status != 'pending'
-        offending_line
+        @errors << 'has no pending step information' unless pending_line_number
         super
       end
 
       private
 
-      def offending_line
-        unless pending_message =~ /^No such step\((?<stepno>\d+)\): /
-          raise NoExistPendingStepInformationError
-        end
-        $~[:stepno].to_i
+      def pending_line_number
+        example.metadata[:line_number]
       end
 
       def pending_message
-        example.execution_result[:pending_message]
+        result = TurnipFormatter::Helper.example_execution_result(example)
+        result.pending_message
       end
     end
   end

@@ -1,52 +1,98 @@
 # -*- coding: utf-8 -*-
 
-require 'turnip_formatter/template'
-require 'sass'
-require 'uglifier'
+require 'uri'
 
 module TurnipFormatter
   class Template
     class << self
-      #def add_js(js_string)
-      #  js_list << js_string
-      #end
-      #
-      #def add_js_file(file)
-      #  js_list << Uglifier.compile(File.read(file))
-      #end
-
-      def add_scss(scss_string)
-        css_list << Sass::Engine.new(scss_string, scss_option).render
+      def project_name
+        TurnipFormatter.configuration.title
       end
 
-      def add_scss_file(path)
-        css_list << Sass::Engine.for_file(path, scss_option).render
-      end
-      #
-      #def js_render
-      #  js_list.join("\n")
-      #end
-
-      def css_render
-        css_list.join("\n")
+      def reset!
+        @js_code_list = []
+        @js_file_list = []
+        @css_code_list = []
+        @css_file_list = []
       end
 
-      #def js_list
-      #  @js_list ||= []
-      #end
-
-      def css_list
-        @css_list ||= []
+      def add_javascript(script)
+        case
+        when local_file?(script)
+          js_code_list << File.read(script)
+        when remote_url?(script)
+          js_file_list << script
+        end
       end
 
-      def scss_option
-        { syntax: :scss, style: :compressed }
+      def add_stylesheet(stylesheet)
+        case
+        when local_file?(stylesheet)
+          css_code_list << File.read(stylesheet)
+        when remote_url?(stylesheet)
+          css_file_list << stylesheet
+        end
+      end
+
+      def render_javascript_codes
+        js_code_list.join("\n")
+      end
+
+      def render_javascript_links
+        js_file_list.map do |file|
+          "<script src=\"#{file}\"></script>"
+        end.join("\n")
+      end
+
+      def render_stylesheet_codes
+        codes = TurnipFormatter.step_templates.map do |template|
+          template.class.css
+        end
+
+        codes.concat(css_code_list).join("\n")
+      end
+
+      def render_stylesheet_links
+        css_file_list.map do |file|
+          "<link rel=\"stylesheet\" href=\"#{file}\">"
+        end.join("\n")
+      end
+
+      private
+
+      def js_code_list
+        @js_code_list ||= []
+      end
+
+      def js_file_list
+        @js_file_list ||= []
+      end
+
+      def css_code_list
+        @css_code_list ||= []
+      end
+
+      def css_file_list
+        @css_file_list ||= []
+      end
+
+      def local_file?(path)
+        File.exist? path
+      end
+
+      def remote_url?(path)
+        uri = URI.parse(path)
+        return true if %w(http https).include?(uri.scheme)
+        return true if uri.scheme.nil? && path.start_with?('//')
+        false
+      rescue URI::InvalidURIError
+        false
       end
     end
-  end
-end
 
-(File.dirname(__FILE__) + '/template').tap do |dirname|
-  TurnipFormatter::Template.add_scss_file(dirname + '/turnip_formatter.scss')
-  #TurnipFormatter::Template.add_js_file(dirname + '/turnip_formatter.js')
+    (File.dirname(__FILE__) + '/template').tap do |dirname|
+      add_stylesheet(dirname + '/turnip_formatter.css')
+      add_javascript(dirname + '/turnip_formatter.js')
+    end
+  end
 end

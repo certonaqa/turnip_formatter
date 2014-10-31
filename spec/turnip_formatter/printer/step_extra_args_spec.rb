@@ -16,15 +16,15 @@ module TurnipFormatter::Printer
         subject { StepExtraArgs.print_out([string]) }
 
         it {
-          subject.should have_tag 'table.step_outline' do
-            with_tag 'tr:nth-child(1) td:nth-child(1)', text: 'State'
-            with_tag 'tr:nth-child(1) td:nth-child(2)', text: 'Money'
+          expect(subject).to have_tag 'table.step_outline' do
+            with_tag 'tr:nth-child(1) td:nth-child(1)', text: /State/
+            with_tag 'tr:nth-child(1) td:nth-child(2)', text: /Money/
 
-            with_tag 'tr:nth-child(2) td:nth-child(1)', text: '<Tokushima>'
-            with_tag 'tr:nth-child(2) td:nth-child(2)', text: '555'
+            with_tag 'tr:nth-child(2) td:nth-child(1)', text: /<Tokushima>/
+            with_tag 'tr:nth-child(2) td:nth-child(2)', text: /555/
 
-            with_tag 'tr:nth-child(3) td:nth-child(1)', text: '<Okinawa>'
-            with_tag 'tr:nth-child(3) td:nth-child(2)', text: '368'
+            with_tag 'tr:nth-child(3) td:nth-child(1)', text: /<Okinawa>/
+            with_tag 'tr:nth-child(3) td:nth-child(2)', text: /368/
           end
         }
       end
