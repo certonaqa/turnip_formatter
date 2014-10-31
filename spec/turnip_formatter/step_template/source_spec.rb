@@ -7,12 +7,10 @@ describe TurnipFormatter::StepTemplate::Source do
   end
 
   describe '#build' do
-    subject { template.build(failed_example) }
+    subject { JSON.parse(template.build(failed_example)) }
 
     it do
-      expect(subject).to have_tag 'pre.source > code.ruby' do
-        with_tag 'span.linenum'
-      end
+      expect(subject["code"]).to include '<span class="linenum">'
     end
   end
 end

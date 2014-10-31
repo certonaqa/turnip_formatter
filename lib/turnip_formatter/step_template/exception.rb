@@ -1,5 +1,6 @@
 require 'turnip_formatter/step_template/base'
 require 'slim'
+require 'json_builder'
 
 module TurnipFormatter
   module StepTemplate
@@ -42,7 +43,11 @@ module TurnipFormatter
       private
 
         def build(message, backtrace)
-          template_step_exception.render(Object.new, { message: message, backtrace: backtrace })
+          #template_step_exception.render(Object.new, { message: message, backtrace: backtrace })
+          JSONBuilder::Compiler.generate do
+            message message
+            backtrace backtrace
+          end
         end
 
         def template_step_exception

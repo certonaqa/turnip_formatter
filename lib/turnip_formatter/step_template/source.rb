@@ -33,7 +33,9 @@ module TurnipFormatter
 
       def build(example)
         code = extractor.snippet([location(example)])
-        '<pre class="source"><code class="ruby">' + code + '</code></pre>'
+        JSONBuilder::Compiler.generate do
+          code code
+        end
       end
 
       private

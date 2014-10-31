@@ -1,10 +1,10 @@
 module ExampleHelper
   def passed_example
-    base_example { expect(true).to be true }
+    base_example { expect(true).to eq true }
   end
 
   def failed_example
-    base_example { expect(true).to be false }
+    base_example { expect(true).to eq false }
   end
 
   def pending_example
