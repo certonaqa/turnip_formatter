@@ -120,10 +120,12 @@
         <em>The results for the feature:</em>
         <%= TurnipFormatter::Printer::TabFeatureStatistics.print_out(scenarios) %>
       </div>
+<!--
       <div id="tag-statistics">
         <em>The results per tag:</em>
         <%= TurnipFormatter::Printer::TabTagStatistics.print_out(scenarios) %>
       </div>
+      -->
       <div id="speed-statistics">
         <em>Ranking of running time of each <strong>successful</strong> scenario:</em>
         <%= TurnipFormatter::Printer::TabSpeedStatistics.print_out(passed_scenarios) %>
